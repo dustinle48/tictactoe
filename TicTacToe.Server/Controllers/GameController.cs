@@ -15,34 +15,28 @@ namespace TicTacToe.Server.Controllers
     public class GameController : ControllerBase
     {
         private readonly IGameRepository _gameRepository;
+        private readonly ILogger<GameController> _logger;
 
-        public GameController(IGameRepository gameRepository)
+        public GameController(IGameRepository gameRepository, ILogger<GameController> logger)
         {
             _gameRepository = gameRepository;
+            _logger = logger;
         }
 
+        // TODO: Add [Authorize] that verify both tokenX and tokenY
         [HttpGet]
-        public async Task<ActionResult<ResponseGameDto[]>> GetAll(int? xPlayerId, int? oPlayerId, string? winner,
+        public async Task<ActionResult<ResponseGameDto[]>> GetPlayingGames(int xPlayerId, int oPlayerId,
             CancellationToken cancellationToken)
         {
-            var gameQuery = _gameRepository.GetAll();
+            var httpContext = Request.Headers.Cookie.ToString();
+            _logger.LogInformation(httpContext);
 
-            if (xPlayerId != null)
-            {
-                gameQuery = gameQuery.Where(g => g.XPlayerId == xPlayerId);
-            }
 
-            if (oPlayerId != null)
-            {
-                gameQuery = gameQuery.Where(g => g.OPlayerId == oPlayerId);
-            }
-
-            if (winner != null)
-            {
-                gameQuery = gameQuery.Where(g => g.Winner == winner);
-            }
-
-            var games = await gameQuery.ToArrayAsync(cancellationToken);
+            var games = await _gameRepository.GetAll()
+                .Where(g => g.XPlayerId == xPlayerId)
+                .Where(g => g.OPlayerId == oPlayerId)
+                .Where(g => g.Winner == null)
+                .ToArrayAsync(cancellationToken);
 
             var result = games
                 .Select(g => new ResponseGameDto
@@ -58,6 +52,7 @@ namespace TicTacToe.Server.Controllers
             return result;
         }
 
+        // TODO: Add [Authorize] that verify both tokenX and tokenY
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<Game>> Create(CreateGameData data, CancellationToken cancellationToken)
