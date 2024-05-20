@@ -18,18 +18,17 @@ function Game(props: GameProps) {
 type GameListProps = {
   gameList: IGame[];
   onChoose: (game: IGame) => void;
-  onNewGame: () => void;
 };
 
 function GameList(props: GameListProps) {
-  const { gameList, onChoose, onNewGame } = props;
+  const { gameList, onChoose } = props;
 
   return (
-    <div>
+    <div style={{ border: "1px solid black" }}>
+      <h4>Unfinised games:</h4>
       {gameList.map((game) => (
         <Game gameInfo={game} onChoose={onChoose} />
       ))}
-      <button onClick={onNewGame}>New game</button>
     </div>
   );
 }

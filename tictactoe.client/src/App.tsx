@@ -88,6 +88,18 @@ function App() {
         setHistory((prev) => [...prev.slice(0, currentMove + 1)]);
 
         console.error("Error");
+      } else {
+        setGames((prev) =>
+          prev.map((game) =>
+            game.id !== currentGame?.id
+              ? game
+              : {
+                  ...game,
+                  step: nextHistory,
+                  winner: calculateWinner(nextSquares),
+                }
+          )
+        );
       }
     } catch (e) {
       setCurrentMove(nextHistory.length >= 2 ? nextHistory.length - 2 : 0);
@@ -120,7 +132,7 @@ function App() {
       try {
         const token = getCookie("tokenX");
         const response = await fetch(
-          `https://localhost:7020/api/Game?xPlayerId=${xPlayer?.id}&oPlayerId=${oPlayer?.id}&winner=`,
+          `https://localhost:7020/api/Game?xPlayerId=${xPlayer?.id}&oPlayerId=${oPlayer?.id}&winner=null`,
           {
             method: "GET",
             credentials: "include",
@@ -132,9 +144,10 @@ function App() {
         );
         if (!response.ok) {
           console.error("Error");
+        } else {
+          const data = await response.json();
+          setGames(data);
         }
-        const data = await response.json();
-        setGames(data);
       } catch (e) {
         console.error(e);
       }
@@ -159,11 +172,10 @@ function App() {
         <div className="game-board">
           <Board
             currentGameId={currentGame?.id || null}
-            xPlayerId={xPlayer ? xPlayer.id : null}
-            oPlayerId={oPlayer ? oPlayer.id : null}
             xIsNext={xIsNext}
             squares={currentSquares}
             onPlay={handlePlay}
+            onNewGame={handleCreateNewGame}
           />
           <button
             onClick={() => {
@@ -182,11 +194,7 @@ function App() {
         </div>
       </div>
       <div>
-        <GameList
-          gameList={games || []}
-          onChoose={handleChooseGame}
-          onNewGame={handleCreateNewGame}
-        />
+        <GameList gameList={games || []} onChoose={handleChooseGame} />
       </div>
     </main>
   );
