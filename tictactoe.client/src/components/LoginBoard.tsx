@@ -56,6 +56,7 @@ function LoginBoard(props: LoginBoardProps) {
     event.preventDefault();
 
     const data = {
+      side: side,
       name: (event.target as HTMLFormElement).name.value,
       password: (event.target as HTMLFormElement).password.value,
     };
