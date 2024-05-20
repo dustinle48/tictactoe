@@ -51,6 +51,8 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Logging.AddConsole();
+
 var app = builder.Build();
 
 app.UseDefaultFiles();

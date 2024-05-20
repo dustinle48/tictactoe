@@ -15,10 +15,12 @@ namespace TicTacToe.Server.Controllers
     public class GameController : ControllerBase
     {
         private readonly IGameRepository _gameRepository;
+        private readonly ILogger<GameController> _logger;
 
-        public GameController(IGameRepository gameRepository)
+        public GameController(IGameRepository gameRepository, ILogger<GameController> logger)
         {
             _gameRepository = gameRepository;
+            _logger = logger;
         }
 
         // TODO: Add [Authorize] that verify both tokenX and tokenY
@@ -26,6 +28,10 @@ namespace TicTacToe.Server.Controllers
         public async Task<ActionResult<ResponseGameDto[]>> GetPlayingGames(int xPlayerId, int oPlayerId,
             CancellationToken cancellationToken)
         {
+            var httpContext = Request.Headers.Cookie.ToString();
+            _logger.LogInformation(httpContext);
+
+
             var games = await _gameRepository.GetAll()
                 .Where(g => g.XPlayerId == xPlayerId)
                 .Where(g => g.OPlayerId == oPlayerId)

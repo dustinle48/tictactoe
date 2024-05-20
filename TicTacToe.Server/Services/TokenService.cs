@@ -1,6 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 
 namespace TicTacToe.Server.Services;
@@ -37,5 +38,31 @@ public class TokenService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+    }
+
+    public static bool ValidateToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParams = GetValidationParams();
+
+        SecurityToken validatedToken;
+        IPrincipal principal = tokenHandler.ValidateToken(token, validationParams, out validatedToken);
+
+        return true;
+    }
+
+    private static TokenValidationParameters GetValidationParams()
+    {
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+
+        return new TokenValidationParameters()
+        {
+            ValidateLifetime = false,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+        };
     }
 }
