@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    {
+      "name": "welcome-message-example",
+      "command": "npx",
+      "args": ["prettier", "--ignore-unknown", "--write", "${staged}"],
+      "pathMode": "absolute",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "echo Husky.Net is awesome!"]
+      }
+    }
+  ]
+}
